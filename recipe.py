@@ -116,7 +116,6 @@ class RecipeSearch:
 
                     # parse api response
                     api_data = api_request.json()
-                    print(api_data['recipe']['recipe_id'])
                     current_recipe = api_data['recipe']
                     full_ingredients = api_data['recipe']['ingredients']
                     full_ingredients = [x.lower() for x in full_ingredients]
@@ -152,7 +151,6 @@ class RecipeSearch:
                 return the most popular / rated with highest matching ingredient.
                 """
                 for item in list(self.table):
-                    print(item)
                     display_result(self.table[item]['full_recipe'], self.table[item]['available_ingredients'], self.table[item]['missing_ingredients'])
                     break
             return
