@@ -1,9 +1,9 @@
 import os
 import yaml
+import inflect
 import requests
 from logging import getLogger
 logger = getLogger('error')
-import inflect
 p = inflect.engine()
 
 
@@ -29,7 +29,6 @@ class RecipeSearch:
                 # get ingredients from user
                 user_input = input('Please Enter Ingredient No.{0} \n'.format(len(self.ingredients_with_user) + 1))
                 user_input = user_input.replace(' ', '').lower()
-
 
                 if len(user_input) == 0:
                     print('No Ingredient Entered \n')
@@ -103,7 +102,7 @@ class RecipeSearch:
                         'rId': recipe_id
                     }
 
-                    #api request to get individual recipe ingredients
+                    # api request to get individual recipe ingredients
                     api_request = requests.get(self.specific_recipe_url, params=query_params)
 
                     # clear data from previous iteration
@@ -119,7 +118,7 @@ class RecipeSearch:
                     full_ingredients = [x.lower() for x in full_ingredients]
                     full_ingredients = set(full_ingredients)
 
-                    #search missing ingredient
+                    # search missing ingredient
                     for x in self.ingredients_with_user:
                         for y in full_ingredients:
                             if x in y:
@@ -143,7 +142,6 @@ class RecipeSearch:
                     self.table[recipe_id]['missing_ingredients'] = missing_ingredients
                     self.table[recipe_id]['full_recipe'] = current_recipe
 
-
                 """
                 If not all of the ingredients entered by User found in the recipe (all individual recipes),
                 return the most popular / rated with highest matching ingredient.
@@ -166,6 +164,7 @@ class RecipeSearch:
         with open("secrets.yml", 'r') as ymlfile:
             config = yaml.load(ymlfile)
         return config['API_VARIABLES']
+
 
 # utility method to display result
 def display_result(current_recipe, already_available_ingredients, missing_ingredients):

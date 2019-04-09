@@ -1,1 +1,3 @@
 inflect
+requests
+yaml
