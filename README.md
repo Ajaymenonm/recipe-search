@@ -25,7 +25,7 @@ A python executable to search for tasty recipes with the ingredients you have
 
 6. Project Setup Done!
 
-
+---------------------------
 
 ### End User
 
