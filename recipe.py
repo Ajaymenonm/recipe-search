@@ -13,9 +13,9 @@ class RecipeSearch:
         self.ingredients_with_user = []
         config = self.__load_secrets()
         self.api_key = os.environ['KEY'] or config['KEY']
-        self.sort_by = os.environ['SORT_TYPE'] or config['SORT_TYPE']
-        self.bulk_recipe_url = os.environ['RECIPE_URL'] or config['RECIPE_URL']
-        self.specific_recipe_url = os.environ['INGREDIENT_URL'] or config['INGREDIENT_URL']
+        self.sort_by = config['SORT_TYPE']
+        self.bulk_recipe_url = config['RECIPE_URL']
+        self.specific_recipe_url = config['INGREDIENT_URL']
         self.table = {}
 
     def get_ingredients(self):
