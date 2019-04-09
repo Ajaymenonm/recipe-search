@@ -3,6 +3,8 @@ import yaml
 import requests
 from logging import getLogger
 logger = getLogger('error')
+import inflect
+p = inflect.engine()
 
 
 class RecipeSearch:
@@ -30,6 +32,7 @@ class RecipeSearch:
                 user_input = input('Please Enter Ingredient No.{0} \n'.format(len(self.ingredients_with_user) + 1))
                 user_input = user_input.replace(' ', '').lower()
 
+
                 if len(user_input) == 0:
                     print('No Ingredient Entered \n')
 
@@ -47,6 +50,9 @@ class RecipeSearch:
                 4. Ingredients entered one at a time
                 """
                 if user_input.isalpha():
+                    a = p.singular_noun(user_input)
+                    if a:
+                        user_input = a
                     self.ingredients_with_user.append(user_input)
                     self.ingredients_with_user = list(set(self.ingredients_with_user))
                     print('You Have: ', ", ".join(reversed(self.ingredients_with_user)))
@@ -110,6 +116,7 @@ class RecipeSearch:
 
                     # parse api response
                     api_data = api_request.json()
+                    print(api_data['recipe']['recipe_id'])
                     current_recipe = api_data['recipe']
                     full_ingredients = api_data['recipe']['ingredients']
                     full_ingredients = [x.lower() for x in full_ingredients]
@@ -135,9 +142,9 @@ class RecipeSearch:
                     #         missing_ingredients.append(ingredient)
 
                     self.table[recipe_id] = {}
-                    self.table[recipe_id]['available_length'] = len(already_available_ingredients)
                     self.table[recipe_id]['available_ingredients'] = already_available_ingredients
                     self.table[recipe_id]['missing_ingredients'] = missing_ingredients
+                    self.table[recipe_id]['full_recipe'] = current_recipe
 
 
                 """
@@ -145,9 +152,11 @@ class RecipeSearch:
                 return the most popular / rated with highest matching ingredient.
                 """
                 for item in list(self.table):
-                    display_result(current_recipe, already_available_ingredients, self.table[item]['missing_ingredients'])
+                    print(item)
+                    display_result(self.table[item]['full_recipe'], self.table[item]['available_ingredients'], self.table[item]['missing_ingredients'])
                     break
-            self.get_ingredients()
+            return
+            # self.get_ingredients()
 
         except Exception:
             logger.error('Exception Raised: ', exc_info=True)
