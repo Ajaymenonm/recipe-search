@@ -18,7 +18,11 @@ class RecipeSearch(object):
         self.specific_recipe_url = config['INGREDIENT_URL']
         self.table = {}
 
-    def handle_io(self):
+    def handle_io(self, prompt=None):
+        if prompt:
+            print(prompt)
+            return
+
         try:
             self.__clear_data()
             while True:
@@ -54,7 +58,7 @@ class RecipeSearch(object):
         if user_input == '1':
             return
         elif user_input == '2' and len(self.ingredients_with_user) >= 1:
-            self.search_popular_recipes()
+            self.search_all_popular_recipes()
             return
 
         """
@@ -74,7 +78,7 @@ class RecipeSearch(object):
         else:
             return "Note: Only Alphabets Allowed!"
 
-    def search_popular_recipes(self):
+    def search_all_popular_recipes(self):
         try:
             ingredients = ','.join(self.ingredients_with_user)
             query_params = {
@@ -88,84 +92,84 @@ class RecipeSearch(object):
             data = api_request.json()
 
             if data['count'] == 0:
-                print('\n No recipes found for ingredients {0} \n\n'.format(ingredients))
-
+                prompt = '\n No recipes found for ingredients: {} \n\n'.format(ingredients)
+                self.handle_io(prompt)
+                return prompt
             else:
-                full_ingredients = []
-                already_available_ingredients = set()
-                missing_ingredients = set()
-                matching_ingredients = set()
-                current_recipe = []
+                self.search_individual_recipe(data)
 
-                for item in range(data['count']):
-
-                    length_with_user = len(self.ingredients_with_user)
-                    length_available = len(already_available_ingredients)
-
-                    """
-                    Return Missing Ingredients 
-                    from the Most Popular Recipe
-                    """
-                    if length_available == length_with_user:
-                        display_result(current_recipe, already_available_ingredients, missing_ingredients)
-                        return
-
-                    recipe_id = data['recipes'][item]['recipe_id']
-                    query_params = {
-                        'key': self.api_key,
-                        'rId': recipe_id
-                    }
-
-                    # api request to get individual recipe ingredients
-                    api_request = requests.get(self.specific_recipe_url, params=query_params)
-
-                    # clear data from previous iteration
-                    full_ingredients.clear()
-                    already_available_ingredients.clear()
-                    missing_ingredients.clear()
-                    matching_ingredients.clear()
-
-                    # parse api response
-                    api_data = api_request.json()
-                    current_recipe = api_data['recipe']
-                    full_ingredients = api_data['recipe']['ingredients']
-                    full_ingredients = [x.lower() for x in full_ingredients]
-                    full_ingredients = set(full_ingredients)
-
-                    # search missing ingredient
-                    for x in self.ingredients_with_user:
-                        for y in full_ingredients:
-                            if x in y:
-                                already_available_ingredients.add(x)
-                                matching_ingredients.add(y)
-                            else:
-                                missing_ingredients.add(y)
-                    missing_ingredients = full_ingredients - matching_ingredients
-
-                    # for ingredient in full_ingredients:
-                    #     # print(s.lower() in ingredient for s in self.ingredients_with_user)
-                    #     if any(s.lower() in ingredient for s in self.ingredients_with_user):
-                    #
-                    #         already_available_ingredients.append(ingredient)
-                    #
-                    #     else:
-                    #         missing_ingredients.append(ingredient)
-
-                    self.table[recipe_id] = {}
-                    self.table[recipe_id]['available_ingredients'] = already_available_ingredients
-                    self.table[recipe_id]['missing_ingredients'] = missing_ingredients
-                    self.table[recipe_id]['full_recipe'] = current_recipe
-
-                """
-                If not all of the ingredients entered by User found in the recipe (all individual recipes),
-                return the most popular / rated with highest matching ingredient.
-                """
-                for item in list(self.table):
-                    display_result(self.table[item]['full_recipe'], self.table[item]['available_ingredients'], self.table[item]['missing_ingredients'])
-                    break
             return
-            # self.get_ingredients()
 
+        except Exception:
+            logger.error('Exception Raised: ', exc_info=True)
+
+    def search_individual_recipe(self, data, recipe_id=None):
+        try:
+            full_ingredients = []
+            already_available_ingredients = set()
+            missing_ingredients = set()
+            matching_ingredients = set()
+            current_recipe = []
+
+            for item in range(data['count']):
+
+                length_with_user = len(self.ingredients_with_user)
+                length_available = len(already_available_ingredients)
+
+                """
+                Return Missing Ingredients 
+                from the Most Popular Recipe
+                """
+                if length_available == length_with_user:
+                    display_result(current_recipe, already_available_ingredients, missing_ingredients)
+                    return
+
+                individual_recipe_id = recipe_id or data['recipes'][item]['recipe_id']
+                query_params = {
+                    'key': self.api_key,
+                    'rId': individual_recipe_id
+                }
+
+                # api request to get individual recipe ingredients
+                api_request = requests.get(self.specific_recipe_url, params=query_params)
+
+                # clear data from previous iteration
+                full_ingredients.clear()
+                already_available_ingredients.clear()
+                missing_ingredients.clear()
+                matching_ingredients.clear()
+
+                # parse api response
+                api_data = api_request.json()
+                current_recipe = api_data['recipe']
+                full_ingredients = api_data['recipe']['ingredients']
+                full_ingredients = [x.lower() for x in full_ingredients]
+                full_ingredients = set(full_ingredients)
+
+                # search missing ingredient
+                for x in self.ingredients_with_user:
+                    for y in full_ingredients:
+                        if x in y:
+                            already_available_ingredients.add(x)
+                            matching_ingredients.add(y)
+                        else:
+                            missing_ingredients.add(y)
+                missing_ingredients = full_ingredients - matching_ingredients
+
+                # create result dictionary
+                self.table[individual_recipe_id] = {}
+                self.table[individual_recipe_id]['full_recipe'] = current_recipe
+                self.table[individual_recipe_id]['missing_ingredients'] = missing_ingredients
+                self.table[individual_recipe_id]['available_ingredients'] = already_available_ingredients
+
+            """
+            If not all of the ingredients entered by User found in the recipe (all individual recipes),
+            return the most popular / rated with highest matching ingredient.
+            """
+            for item in list(self.table):
+                display_result(self.table[item]['full_recipe'], self.table[item]['available_ingredients'],
+                               self.table[item]['missing_ingredients'])
+                break
         except Exception:
             logger.error('Exception Raised: ', exc_info=True)
 
