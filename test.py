@@ -1,26 +1,24 @@
-import os
-import recipe
 import unittest
-from unittest import mock
-from unittest import TestCase
-from unittest.mock import patch
-import unittest.mock
-from nose.tools import *
-import io
-# import mock
-# from httmock import urlmatch, HTTMock
-
+from recipe import RecipeSearch
 
 
 class RecipeSearchTest(unittest.TestCase):
 
-    def test_handler_no_env(self):
-        original_input = mock.builtins.input
-        mock.builtins.input = lambda _: "yes"
-        assert_equal(recipe.RecipeSearch.get_ingredients(), "you entered yes")
-        mock.builtins.input = original_input
+    # should exit when 1 is entered
+    print('--> should exit when 1 is entered \n')
+    def test_user_input_mango(self):
+        result = RecipeSearch().validate_ingredients('1')
+        self.assertEqual(result, None)
+
+    # should not allow numbers as ingredients
+    print('--> should not allow numbers as ingredients \n')
+    def test_user_input_numbers(self):
+        test_data = ['3', '2', '123', '24541']
+        for i in test_data:
+            result = RecipeSearch().validate_ingredients(i)
+            self.assertEqual(result, "Note: Only Alphabets Allowed!")
 
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
