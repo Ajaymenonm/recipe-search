@@ -66,7 +66,7 @@ class RecipeSearchTest(unittest.TestCase):
     # TODO should not accept duplicate ingredients
 
     # should return if no recipes found for ingredients
-    def test(self):
+    def test_for_no_recipe_found(self):
         print('--> should return if no recipes found for ingredients\n')
         recipe = FakeInput()
         recipe.set_fake_ingredients_with_user("kjhdliduilhig")
