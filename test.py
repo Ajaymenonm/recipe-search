@@ -6,7 +6,7 @@ class RecipeSearchTest(unittest.TestCase):
 
     # should exit when 1 is entered
     print('--> should exit when 1 is entered \n')
-    def test_user_input_mango(self):
+    def test_user_input_1(self):
         result = RecipeSearch().validate_ingredients('1')
         self.assertEqual(result, None)
 
