@@ -1,11 +1,13 @@
 # Recipe-Search
 A python executable to search for tasty recipes with the ingredients you have
 
+Note: Refactored code with Test coverage can be found in branch [refactor](https://github.com/Ajaymenonm/recipe-search/tree/refactor)
+
 ### Installation
 
-1. Install python. <br /> https://docs.python.org/3/using/index.html
+1. Install python <br /> https://docs.python.org/3/using/index.html
 
-2. Download Recipe-Search code. <br />
+2. Download Recipe-Search code <br />
   `$ https://github.com/Ajaymenonm/recipe-search.git` <br />
   `$ cd recipe-search`
 
