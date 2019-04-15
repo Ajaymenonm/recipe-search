@@ -2,6 +2,17 @@ import unittest
 from recipe import RecipeSearch
 
 
+class FakeInput(RecipeSearch):
+
+    def __init__(self):
+        super(FakeInput, self).__init__()  # Do RecipeSearch's __init__
+        self.ingredients_with_user = []  # Allow over riding the instance variable
+
+    # New method saves fake ingredients
+    def set_fake_ingredients_with_user(self, ing_input):
+        self.ingredients_with_user.append(ing_input)
+
+
 class RecipeSearchTest(unittest.TestCase):
 
     # should exit when 1 is entered
@@ -20,7 +31,7 @@ class RecipeSearchTest(unittest.TestCase):
 
     # should not allow whitespaces
     def test_user_input_whitespace(self):
-        print('--> should not allow numbers as ingredients \n')
+        print('--> should not allow whitespaces as ingredients \n')
         test_data = [' ', '  ']
         for i in test_data:
             result = RecipeSearch().validate_ingredients(i)
@@ -42,6 +53,24 @@ class RecipeSearchTest(unittest.TestCase):
         for i, x in zip(test_data, expected_result):
             result = RecipeSearch().validate_ingredients(i)
             self.assertEqual(result, "You Have: {}".format(x))
+
+    # should trim whitespaces from ingredient
+    def test_user_input_trim_whitespace(self):
+        print('--> should trim whitespaces from ingredient\n')
+        test_data = ['  eggs', 'onions   ', 'loa  ves', ' p o t a t o e s ']
+        expected_result = ['egg', 'onion', 'loaf', 'potato']
+        for i, x in zip(test_data, expected_result):
+            result = RecipeSearch().validate_ingredients(i)
+            self.assertEqual(result, "You Have: {}".format(x))
+
+    # TODO should not accept duplicate ingredients
+
+    # should return if no recipes found for ingredients
+    def test(self):
+        print('--> should return if no recipes found for ingredients\n')
+        recipe = FakeInput()
+        recipe.set_fake_ingredients_with_user("kjhdliduilhig")
+        self.assertEqual(recipe.search_all_popular_recipes(), "\n No recipes found for ingredients: kjhdliduilhig \n\n")
 
 
 if __name__ == "__main__":
