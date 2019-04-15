@@ -7,7 +7,7 @@ logger = getLogger('error')
 p = inflect.engine()
 
 
-class RecipeSearch:
+class RecipeSearch(object):
 
     def __init__(self):
         self.ingredients_with_user = []
@@ -18,47 +18,61 @@ class RecipeSearch:
         self.specific_recipe_url = config['INGREDIENT_URL']
         self.table = {}
 
-    def get_ingredients(self):
+    def handle_io(self):
         try:
             self.__clear_data()
             while True:
-
                 generic_instruction = '\n\n    Instructions: \n **Enter 1 to exit.** '
                 print(generic_instruction if len(self.ingredients_with_user) == 0 else generic_instruction + '\n **Enter 2 to search for recipe.**')
 
                 # get ingredients from user
-                user_input = input('Please Enter Ingredient No.{0} \n'.format(len(self.ingredients_with_user) + 1))
-                user_input = user_input.replace(' ', '').lower()
+                user_input = self.get_ingredients()
 
-                if len(user_input) == 0:
-                    print('No Ingredient Entered \n')
+                # validate ingredients and form list
+                result = self.validate_ingredients(user_input)
 
-                if user_input == '1':
-                    return
-                elif user_input == '2' and len(self.ingredients_with_user) >= 1:
-                    self.search_popular_recipes()
+                if not result:
                     return
 
-                """
-                Entered Ingredients Acceptance Criteria:
-                1. Only alphabets
-                2. No whitespaces
-                3. No special characters
-                4. Ingredients entered one at a time
-                """
-                if user_input.isalpha():
-                    a = p.singular_noun(user_input)
-                    if a:
-                        user_input = a
-                    self.ingredients_with_user.append(user_input)
-                    self.ingredients_with_user = list(set(self.ingredients_with_user))
-                    print('You Have: ', ", ".join(reversed(self.ingredients_with_user)))
-                else:
-                    print('Note: Only Alphabets Allowed!')
+                print(result)
+
         except Exception:
             logger.error('Exception Raised: ', exc_info=True)
         except KeyboardInterrupt:
             print('Goodbye!')
+
+    def get_ingredients(self):
+        user_input = input('Please Enter Ingredient No.{0} \n'.format(len(self.ingredients_with_user) + 1))
+        return user_input
+
+    def validate_ingredients(self, user_input):
+        user_input = user_input.replace(' ', '').lower()
+
+        if len(user_input) == 0:
+            return 'No Ingredient Entered \n'
+
+        if user_input == '1':
+            return
+        elif user_input == '2' and len(self.ingredients_with_user) >= 1:
+            self.search_popular_recipes()
+            return
+
+        """
+        Entered Ingredients Acceptance Criteria:
+        1. Only alphabets
+        2. No whitespaces
+        3. No special characters
+        4. Ingredients entered one at a time
+        """
+        if user_input.isalpha():
+            a = p.singular_noun(user_input)  # convert plural to singular; ex: eggs to egg
+            if a:
+                user_input = a
+            self.ingredients_with_user.append(user_input)
+            self.ingredients_with_user = list(set(self.ingredients_with_user))
+            return 'You Have: {0}'.format(", ".join(reversed(self.ingredients_with_user)))
+        else:
+            return "Note: Only Alphabets Allowed!"
 
     def search_popular_recipes(self):
         try:
@@ -179,5 +193,6 @@ def display_result(current_recipe, already_available_ingredients, missing_ingred
     print('\n######################################################################')
 
 
-rs = RecipeSearch()
-rs.get_ingredients()
+if __name__ == "__main__":
+    rs = RecipeSearch()
+    rs.handle_io()
