@@ -12,6 +12,10 @@ class FakeInput(RecipeSearch):
     def set_fake_ingredients_with_user(self, ing_input):
         self.ingredients_with_user.append(ing_input)
 
+    # return length of ingredient list entered by user
+    def ingredient_list_size(self):
+        return len(self.ingredients_with_user)
+
 
 class RecipeSearchTest(unittest.TestCase):
 
@@ -63,7 +67,15 @@ class RecipeSearchTest(unittest.TestCase):
             result = RecipeSearch().validate_ingredients(i)
             self.assertEqual(result, "You Have: {}".format(x))
 
-    # TODO should not accept duplicate ingredients
+    # should not include duplicate ingredients
+    def test_user_input_discard_duplicates(self):
+        print('--> should not include duplicate ingredients\n')
+        test_data = ['eggs', 'egg', 'Apple', 'apples', 'apple']
+        recipe = FakeInput()
+        for i in test_data:
+            recipe.validate_ingredients(i)
+        self.assertEqual(recipe.ingredient_list_size(), 2)
+
 
     # should return if no recipes found for ingredients
     def test_for_no_recipe_found(self):
