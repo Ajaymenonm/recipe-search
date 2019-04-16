@@ -122,7 +122,7 @@ class RecipeSearch(object):
                 """
                 if length_available == length_with_user:
                     display_result(current_recipe, already_available_ingredients, missing_ingredients)
-                    return
+                    return [current_recipe, already_available_ingredients, missing_ingredients]
 
                 individual_recipe_id = recipe_id or data['recipes'][item]['recipe_id']
                 query_params = {

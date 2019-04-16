@@ -1,3 +1,4 @@
+import json
 import unittest
 from recipe import RecipeSearch
 
@@ -23,7 +24,7 @@ class RecipeSearchTest(unittest.TestCase):
     def test_user_input_1(self):
         print('--> should exit when 1 is entered \n')
         result = RecipeSearch().validate_ingredients('1')
-        self.assertEqual(result, None)
+        self.assertIsNone(result)
 
     # should not allow numbers as ingredients
     def test_user_input_numbers(self):
@@ -76,13 +77,31 @@ class RecipeSearchTest(unittest.TestCase):
             recipe.validate_ingredients(i)
         self.assertEqual(recipe.ingredient_list_size(), 2)
 
-
     # should return if no recipes found for ingredients
     def test_for_no_recipe_found(self):
         print('--> should return if no recipes found for ingredients\n')
         recipe = FakeInput()
         recipe.set_fake_ingredients_with_user("kjhdliduilhig")
         self.assertEqual(recipe.search_all_popular_recipes(), "\n No recipes found for ingredients: kjhdliduilhig \n\n")
+
+    # should return recipe and missing ingredients
+    def test_if_correct_recipe_returned(self):
+        print('--> should return recipe and missing ingredients\n')
+        data = load_test_data_from_file('test1.json')
+        test_data = ['bread', 'egg', 'milk']
+        recipe = FakeInput()
+        for x in test_data:
+            recipe.set_fake_ingredients_with_user(x)
+        a = recipe.search_individual_recipe(data)
+        self.assertEqual(a[0]['recipe_id'], "35499")
+        self.assertEqual(a[0]['source_url'], "http://www.closetcooking.com/2009/11/pumpkin-pie-french-toast.html")
+        self.assertEqual(len(a[1]), recipe.ingredient_list_size())
+
+
+def load_test_data_from_file(fixture_file):
+    with open(fixture_file) as f:
+        data = json.load(f)
+        return data
 
 
 if __name__ == "__main__":
