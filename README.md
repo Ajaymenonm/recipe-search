@@ -1,7 +1,9 @@
 # Recipe-Search
-A python executable to search for tasty recipes with the ingredients you have
+##### A python executable to search for tasty recipes with the ingredients you have 
 
-Note: Refactored code with Test coverage can be found in branch [refactor](https://github.com/Ajaymenonm/recipe-search/tree/refactor)
+###### Approach to the problem is documented here. Please refer  [Documentation](https://docs.google.com/document/d/1j56PJmd_UbhOqbjSIFb467x5VmNrnYFj2asI7k-5Rpg/edit?usp=sharing) 
+
+---
 
 ### Installation
 
@@ -31,7 +33,7 @@ Note: Refactored code with Test coverage can be found in branch [refactor](https
 7. Run tests <br />
   `$ python3 -m unittest test.py`
 
----------------------------
+---
 
 ### End User
 
