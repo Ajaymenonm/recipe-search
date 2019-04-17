@@ -28,6 +28,9 @@ Note: Refactored code with Test coverage can be found in branch [refactor](https
 
 6. Project Setup Done!
 
+7. Run tests <br />
+  `$ python3 -m unittest test.py`
+
 ---------------------------
 
 ### End User
