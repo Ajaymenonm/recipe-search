@@ -186,15 +186,17 @@ class RecipeSearch(object):
 
 # utility method to display result
 def display_result(current_recipe, already_available_ingredients, missing_ingredients):
-    print('\n######################################################################')
-    print('\n**{0} is the Most Popular Recipe I could find for the ingredients you have.**'.format(
-        current_recipe['title']))
-    print('Title: {0}\nAvailable Ingredients: {1}'.format(current_recipe['title'],
-                                                          ', '.join(already_available_ingredients)))
-    print('\nMissing Ingredients:')
-    print('\n'.join(missing_ingredients))
-    print('\nFor Cooking Instructions, Visit: {0}'.format(current_recipe['source_url']))
-    print('\n######################################################################')
+    result = '''
+            \n######################################################################
+            \n**{} is the Most Popular Recipe I could find for the ingredients you have.**
+            \nTitle: {}\nAvailable Ingredients: {}
+            \nMissing Ingredients:\n{}
+            \nFor Cooking Instructions, Visit: {}
+            \n######################################################################
+            '''.format(current_recipe['title'], current_recipe['title'], ', '.join(already_available_ingredients),
+                       '\n'.join(missing_ingredients), current_recipe['source_url'])
+
+    print(result)
 
 
 if __name__ == "__main__":
