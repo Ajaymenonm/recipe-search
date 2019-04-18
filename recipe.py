@@ -3,6 +3,7 @@ import yaml
 import inflect
 import requests
 from logging import getLogger
+from twilio.rest import Client
 logger = getLogger('error')
 p = inflect.engine()
 
@@ -18,10 +19,16 @@ class RecipeSearch(object):
         self.specific_recipe_url = config['INGREDIENT_URL']
         self.table = {}
 
-    def handle_io(self, prompt=None):
+    def handle_io(self, recipe_result='', prompt=None, sms_prompt=False):
         if prompt:
             print(prompt)
             return
+        elif sms_prompt:
+            user_input = input('\n\nSend Recipe? Enter 10 digit phone number \nNo? Enter N \n')
+            if user_input is 'N':
+                return
+            send_sms(user_input, recipe_result)
+            return 'Message Sent!'
 
         try:
             self.__clear_data()
@@ -93,7 +100,7 @@ class RecipeSearch(object):
 
             if data['count'] == 0:
                 prompt = '\n No recipes found for ingredients: {} \n\n'.format(ingredients)
-                self.handle_io(prompt)
+                self.handle_io(prompt=prompt)
                 return prompt
             else:
                 self.search_individual_recipe(data)
@@ -121,7 +128,7 @@ class RecipeSearch(object):
                 from the Most Popular Recipe
                 """
                 if length_available == length_with_user:
-                    display_result(current_recipe, already_available_ingredients, missing_ingredients)
+                    self.display_result(current_recipe, already_available_ingredients, missing_ingredients)
                     return [current_recipe, already_available_ingredients, missing_ingredients]
 
                 individual_recipe_id = recipe_id or data['recipes'][item]['recipe_id']
@@ -167,7 +174,7 @@ class RecipeSearch(object):
             return the most popular / rated with highest matching ingredient.
             """
             for item in list(self.table):
-                display_result(self.table[item]['full_recipe'], self.table[item]['available_ingredients'],
+                self.display_result(self.table[item]['full_recipe'], self.table[item]['available_ingredients'],
                                self.table[item]['missing_ingredients'])
                 break
         except Exception:
@@ -183,18 +190,28 @@ class RecipeSearch(object):
             config = yaml.load(ymlfile)
         return config['API_VARIABLES']
 
+    # utility method to display result
+    def display_result(self, current_recipe, already_available_ingredients, missing_ingredients):
 
-# utility method to display result
-def display_result(current_recipe, already_available_ingredients, missing_ingredients):
-    print('\n######################################################################')
-    print('\n**{0} is the Most Popular Recipe I could find for the ingredients you have.**'.format(
-        current_recipe['title']))
-    print('Title: {0}\nAvailable Ingredients: {1}'.format(current_recipe['title'],
-                                                          ', '.join(already_available_ingredients)))
-    print('\nMissing Ingredients:')
-    print('\n'.join(missing_ingredients))
-    print('\nFor Cooking Instructions, Visit: {0}'.format(current_recipe['source_url']))
-    print('\n######################################################################')
+        result = '''
+        \n######################################################################
+        \n**{} is the Most Popular Recipe I could find for the ingredients you have.**
+        \nTitle: {}\nAvailable Ingredients: {}
+        \nMissing Ingredients:\n{}
+        \nFor Cooking Instructions, Visit: {}
+        \n######################################################################
+        '''.format(current_recipe['title'], current_recipe['title'], ', '.join(already_available_ingredients), '\n'.join(missing_ingredients), current_recipe['source_url'])
+
+        print(result)
+        self.handle_io(result, sms_prompt=True)
+
+
+def send_sms(phone_number, recipe_result):
+    try:
+        client = Client(os.environ['ACCOUNT_SID'], os.environ['AUTH_TOKEN'])
+        return client.messages.create(to='+1{}'.format(phone_number), from_='+18572801567', body=recipe_result)
+    except Exception:
+        logger.error('Exception Raised: ', exc_info=True)
 
 
 if __name__ == "__main__":
